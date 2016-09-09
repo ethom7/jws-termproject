@@ -1,0 +1,84 @@
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.core.MediaType;
+import com.sun.jersey.api.representation.Form;
+
+/* Jersey Client for predictions3 */
+
+public class JerseyClient {
+    private static final String baseUrl = "http://localhost:8080/predictions3/resourcesP";
+
+    public static void main(String[ ] args) {
+	new JerseyClient().demo();
+    }
+
+    private void demo() {
+	Client client = Client.create();
+	client.setFollowRedirects(true); // in case the service redirects
+
+	WebResource resource = client.resource(baseUrl);
+	//getAllXMLDemo(resource);
+             //getAllJSONDemo(resource);
+
+
+	String url = baseUrl;
+	resource = client.resource(url);
+	getOneXMLDemo(resource, "32"); // 1) get prediction 32 in xml
+             postDemo(resource); // 2) post prediction
+	deleteDemo(resource, "31"); // 3) delete prediction 31
+    }
+
+    // GET method
+    private void getAllXMLDemo(WebResource resource) {
+	// GET all XML
+	String response =
+	    resource.path("/xml").accept(MediaType.APPLICATION_XML_TYPE).get(String.class);
+	report("GET all in XML:\n", response);
+    }
+
+    private void getAllJSONDemo(WebResource resource) {
+	// GET all JSON
+	String response =
+	    resource.path("/json").accept(MediaType.APPLICATION_JSON_TYPE).get(String.class);
+	report("GET all in JSON:\n", response);
+    }
+
+    // GET method
+    private void getOneXMLDemo(WebResource resource, String id) {
+	String response =
+	    resource.path("/xml/" + id).accept(MediaType.APPLICATION_XML_TYPE).get(String.class);
+	report("GET one in XML:\n", response);
+    }
+
+    private void getOneJSONDemo(WebResource resource, String id) {
+        String response =
+        resource.path("/json/" + id).accept(MediaType.APPLICATION_JSON_TYPE).get(String.class);
+        report("GET one in JSON:\n", response);
+    }
+
+
+
+    // POST
+    private void postDemo(WebResource resource) {
+	Form form = new Form(); // HTTP body, a simple hash
+	form.add("who", "William Butler Yeats");
+	form.add("what", "I know that I shall meet my fate");
+
+	String response =
+	    resource.path("/create").type(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
+	    .accept(MediaType.TEXT_PLAIN_TYPE)
+	    .post(String.class, form);
+	report("POST:\n", response);
+    }
+
+    // DELETE
+    private void deleteDemo(WebResource resource, String id) {
+	String response =
+	    resource.path("/delete/" + id).accept(MediaType.TEXT_PLAIN_TYPE).delete(String.class);
+	report("DELETE:\n", response);
+    }
+
+    private void report(String msg, String response) {
+	System.out.println("\n" + msg + response);
+    }
+}
